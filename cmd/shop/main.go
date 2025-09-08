@@ -13,6 +13,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Created product: %s (%s) — price %d\n", p.Name(), p.SKU(), p.Price())
-
+	fmt.Printf("New product created: %s (%s) — price %d\n", p.Name(), p.SKU(), p.Price())
 }
