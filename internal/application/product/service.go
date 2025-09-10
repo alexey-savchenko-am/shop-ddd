@@ -38,3 +38,13 @@ func (s *Service) ChangePrice(id string, newPrice int) error {
 
 	return s.repo.Save(p)
 }
+
+func (s *Service) GetById(id product.ID) (*product.Product, error) {
+	p, err := s.repo.ByID(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return p, nil
+}

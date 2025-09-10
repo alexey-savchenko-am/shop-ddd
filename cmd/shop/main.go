@@ -1,29 +1,47 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"net/http"
+
+	_ "github.com/alexey-savchenko-am/shop-ddd/docs" // docs генерируется swag init
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	appProduct "github.com/alexey-savchenko-am/shop-ddd/internal/application/product"
 	infraProduct "github.com/alexey-savchenko-am/shop-ddd/internal/infrastructure/product"
+	httpProduct "github.com/alexey-savchenko-am/shop-ddd/internal/interfaces/http/product"
 )
 
 func main() {
 	repo := infraProduct.NewMemoryRepository()
 	service := appProduct.NewService(repo)
+	handler := httpProduct.NewHandler(service)
 
-	// создаём продукт
-	p, err := service.CreateProduct("p1", "SKU-1", "Test Product", 1000)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("Created product: %s (%s) — price %d\n", p.Name(), p.SKU(), p.Price())
+	http.HandleFunc("/products", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			handler.CreateProduct(w, r)
+		case http.MethodGet:
+			id := r.URL.Query().Get("id")
+			if id != "" {
+				handler.GetById(w, r)
+				return
+			}
+			http.Error(w, "missing id", http.StatusBadRequest)
+		default:
+			http.NotFound(w, r)
+		}
+	})
 
-	// меняем цену
-	if err := service.ChangePrice("p1", 2000); err != nil {
-		panic(err)
-	}
+	http.HandleFunc("/products/price", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPatch {
+			handler.ChangePrice(w, r)
+			return
+		}
+		http.NotFound(w, r)
+	})
 
-	// читаем обратно из репозитория
-	updated, _ := repo.ByID("p1")
-	fmt.Printf("Updated product: %s — price %d\n", updated.Name(), updated.Price())
+	log.Println("Server is running on :8080")
+	http.Handle("/swagger/", httpSwagger.WrapHandler)
+	log.Fatal(http.ListenAndServe(":3000", nil))
 }

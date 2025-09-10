@@ -1,0 +1,64 @@
+definitions:
+  product.ProductDto:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      sku:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /products:
+    get:
+      description: Returns product by ID
+      parameters:
+      - description: Product ID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/product.ProductDto'
+        "404":
+          description: Not found
+          schema:
+            type: string
+      summary: Get product by ID
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Creates a new product
+      parameters:
+      - description: Product data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/product.ProductDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/product.ProductDto'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Create product
+      tags:
+      - products
+swagger: "2.0"
