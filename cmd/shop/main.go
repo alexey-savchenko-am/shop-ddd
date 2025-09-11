@@ -14,8 +14,8 @@ import (
 
 func main() {
 	repo := infraProduct.NewMemoryRepository()
-	service := appProduct.NewService(repo)
-	handler := httpProduct.NewHandler(service)
+	useCases := appProduct.NewUseCases(repo)
+	handler := httpProduct.NewHandler(useCases)
 
 	http.HandleFunc("/products", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
