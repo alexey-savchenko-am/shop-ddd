@@ -125,8 +125,7 @@ func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) {
 // @Param        id        path      string  true   "Product ID"
 // @Param        request   body      ChangePriceRequest  true  "New price"
 // @Success      200       {object}  ProductDto
-// @Failure      400       {object}  ErrorResponse
-// @Failure      404       {object}  ErrorResponse
+// @Failure      400 {string}  string "Bad Request"
 // @Router       /products/{id}/price [patch]
 func (h *Handler) ChangePrice(w http.ResponseWriter, r *http.Request) {
 

@@ -76,12 +76,70 @@
                     }
                 }
             }
+        },
+        "/products/{id}/price": {
+            "patch": {
+                "description": "Updates the price of a product by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Change product price",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New price",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/product.ChangePriceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/product.ProductDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "product.ChangePriceRequest": {
+            "type": "object",
+            "properties": {
+                "new_price": {
+                    "type": "integer"
+                }
+            }
+        },
         "product.ProductDto": {
             "type": "object",
             "properties": {
+                "currency": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },

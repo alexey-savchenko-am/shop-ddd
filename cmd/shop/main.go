@@ -4,16 +4,27 @@ import (
 	"log"
 	"net/http"
 
-	_ "github.com/alexey-savchenko-am/shop-ddd/docs" // docs генерируется swag init
+	_ "github.com/alexey-savchenko-am/shop-ddd/docs" // docs swag init
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	appProduct "github.com/alexey-savchenko-am/shop-ddd/internal/application/product"
-	infraProduct "github.com/alexey-savchenko-am/shop-ddd/internal/infrastructure/product"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/infrastructure/postgres"
 	httpProduct "github.com/alexey-savchenko-am/shop-ddd/internal/interfaces/http/product"
 )
 
 func main() {
-	repo := infraProduct.NewMemoryRepository()
+
+	db, err := postgres.NewGormDB()
+
+	if err != nil {
+		log.Fatal("can not connect db:", err)
+	}
+
+	if err := db.AutoMigrate(&postgres.ProductModel{}); err != nil {
+		log.Fatal("migration failed", err)
+	}
+
+	repo := postgres.NewProductRepository(db)
 	useCases := appProduct.NewUseCases(repo)
 	handler := httpProduct.NewHandler(useCases)
 
@@ -41,7 +52,7 @@ func main() {
 		http.NotFound(w, r)
 	})
 
-	log.Println("Server is running on :8080")
+	log.Println("Server is running on :3000")
 	http.Handle("/swagger/", httpSwagger.WrapHandler)
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }

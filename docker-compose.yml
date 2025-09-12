@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  shop-ddd:
+    build: .
+    container_name: shop-ddd
+    ports:
+      - "3000:3000"
+    environment:
+        DB_HOST: postgres
+        DB_PORT: 5432
+        DB_USER: shop
+        DB_PASSWORD: shop
+        DB_NAME: shop
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:15
+    container_name: shop-db
+    restart: always
+    environment:
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop
+      POSTGRES_DB: shop
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
