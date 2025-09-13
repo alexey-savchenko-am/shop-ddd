@@ -13,7 +13,7 @@ It demonstrates the usage of CQRS (Command Query Responsibility Segregation), la
 
 ## Requirements
 - Go 1.22+
-- Docker and Docker Compose
+- Docker and Docker Compose.
 
 ## Setup
 
