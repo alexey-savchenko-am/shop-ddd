@@ -22,25 +22,34 @@ info:
 paths:
   /products:
     get:
-      description: Returns product by ID
+      description: Returns list of products with filters and pagination
       parameters:
-      - description: Product ID
+      - description: Filter by SKU
         in: query
-        name: id
-        required: true
+        name: sku
         type: string
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/product.ProductDto'
-        "404":
-          description: Not found
-          schema:
-            type: string
-      summary: Get product by ID
+            items:
+              $ref: '#/definitions/product.ProductDto'
+            type: array
+      summary: Get all products
       tags:
       - products
     post:
@@ -57,8 +66,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/product.ProductDto'
         "400":
@@ -66,6 +75,29 @@ paths:
           schema:
             type: string
       summary: Create product
+      tags:
+      - products
+  /products/{id}:
+    get:
+      description: Returns product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/product.ProductDto'
+        "404":
+          description: Not found
+          schema:
+            type: string
+      summary: Get product by ID
       tags:
       - products
   /products/{id}/price:
@@ -89,9 +121,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Price updated
           schema:
-            $ref: '#/definitions/product.ProductDto'
+            type: string
         "400":
           description: Bad Request
           schema:

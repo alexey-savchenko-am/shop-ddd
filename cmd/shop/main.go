@@ -4,10 +4,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+
 	_ "github.com/alexey-savchenko-am/shop-ddd/docs" // docs swag init
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	appProduct "github.com/alexey-savchenko-am/shop-ddd/internal/application/product"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/infrastructure/persistence"
 	"github.com/alexey-savchenko-am/shop-ddd/internal/infrastructure/postgres"
 	httpProduct "github.com/alexey-savchenko-am/shop-ddd/internal/interfaces/http/product"
 )
@@ -20,39 +24,38 @@ func main() {
 		log.Fatal("can not connect db:", err)
 	}
 
+	sqlxDB, err := postgres.NewSqlxDB()
+
+	if err != nil {
+		log.Fatal("can not connect db:", err)
+	}
+
+	queryDb := persistence.NewSqlxQueryDB(sqlxDB)
+
 	if err := db.AutoMigrate(&postgres.ProductModel{}); err != nil {
 		log.Fatal("migration failed", err)
 	}
 
 	repo := postgres.NewProductRepository(db)
-	useCases := appProduct.NewUseCases(repo)
+	useCases := appProduct.NewUseCases(queryDb, repo)
 	handler := httpProduct.NewHandler(useCases)
 
-	http.HandleFunc("/products", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost:
-			handler.CreateProduct(w, r)
-		case http.MethodGet:
-			id := r.URL.Query().Get("id")
-			if id != "" {
-				handler.GetById(w, r)
-				return
-			}
-			http.Error(w, "missing id", http.StatusBadRequest)
-		default:
-			http.NotFound(w, r)
-		}
-	})
+	// chi router
 
-	http.HandleFunc("/products/price", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPatch {
-			handler.ChangePrice(w, r)
-			return
-		}
-		http.NotFound(w, r)
-	})
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
-	log.Println("Server is running on :3000")
-	http.Handle("/swagger/", httpSwagger.WrapHandler)
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	// routes
+
+	r.Post("/products", handler.CreateProduct)
+	r.Get("/products", handler.GetAll)
+	r.Get("/products/{id}", handler.GetById)
+	r.Patch("/products/{id}/price", handler.ChangePrice)
+
+	//swagger
+	r.Mount("/swagger", httpSwagger.WrapHandler)
+
+	log.Println("Starting server on :3000")
+	log.Fatal(http.ListenAndServe(":3000", r))
 }
