@@ -16,7 +16,7 @@ func NewUseCases(queryDb common.QueryDB, repo product.Repository) *UseCases {
 	return &UseCases{
 		CreateProduct:  NewCreateProductCommandHandler(repo),
 		ChangePrice:    NewChangePriceCommandHandler(repo),
-		GetProductById: NewGetByIdQueryHandler(repo),
+		GetProductById: NewGetByIdQueryHandler(queryDb),
 		GetAllProducts: NewGetAllQueryHandler(queryDb),
 	}
 }

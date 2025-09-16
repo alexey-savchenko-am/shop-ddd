@@ -1,7 +1,9 @@
 package product
 
 import (
-	"github.com/alexey-savchenko-am/shop-ddd/internal/domain/product"
+	"fmt"
+
+	"github.com/alexey-savchenko-am/shop-ddd/internal/application/common"
 )
 
 type GetByIdQuery struct {
@@ -9,20 +11,29 @@ type GetByIdQuery struct {
 }
 
 type GetByIdQueryHandler struct {
-	repo product.Repository
+	queryDb common.QueryDB
 }
 
-func NewGetByIdQueryHandler(repo product.Repository) *GetByIdQueryHandler {
-	return &GetByIdQueryHandler{repo: repo}
+func NewGetByIdQueryHandler(queryDb common.QueryDB) *GetByIdQueryHandler {
+	return &GetByIdQueryHandler{queryDb: queryDb}
 }
 
-func (h *GetByIdQueryHandler) Handle(q GetByIdQuery) (*product.Product, error) {
+func (h *GetByIdQueryHandler) Handle(q GetByIdQuery) (*ProductRow, error) {
 
-	p, err := h.repo.ByID(product.ID(q.ID))
-
-	if err != nil {
-		return nil, err
+	query := `
+		SELECT id, sku, name, price, currency
+		FROM products
+		WHERE id = :id
+	`
+	args := map[string]any{
+		"id": q.ID,
 	}
 
-	return p, nil
+	var row ProductRow
+
+	if err := h.queryDb.Get(&row, query, args); err != nil {
+		return nil, fmt.Errorf("get product by id: %w", err)
+	}
+
+	return &row, nil
 }
