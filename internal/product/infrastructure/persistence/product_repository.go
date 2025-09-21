@@ -1,9 +1,10 @@
 package postgres
 
 import (
-	"github.com/alexey-savchenko-am/shop-ddd/internal/domain/common"
-	"github.com/alexey-savchenko-am/shop-ddd/internal/domain/product"
 	"gorm.io/gorm"
+
+	"github.com/alexey-savchenko-am/shop-ddd/internal/common"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/product/domain"
 )
 
 type ProductRepository struct {
@@ -14,7 +15,7 @@ func NewProductRepository(db *gorm.DB) *ProductRepository {
 	return &ProductRepository{db: db}
 }
 
-func (r *ProductRepository) Save(p *product.Product) error {
+func (r *ProductRepository) Save(p *domain.Product) error {
 	model := ProductModel{
 		ID:       p.ID().String(),
 		SKU:      p.SKU(),
@@ -26,7 +27,7 @@ func (r *ProductRepository) Save(p *product.Product) error {
 	return r.db.Save(&model).Error
 }
 
-func (r *ProductRepository) ByID(id product.ID) (*product.Product, error) {
+func (r *ProductRepository) ByID(id domain.ProductID) (*domain.Product, error) {
 	var model ProductModel
 
 	if err := r.db.First(&model, "id = ?", id).Error; err != nil {
@@ -34,5 +35,5 @@ func (r *ProductRepository) ByID(id product.ID) (*product.Product, error) {
 	}
 
 	money := common.Money{Amount: model.Price, Currency: model.Currency}
-	return product.New(model.SKU, model.Name, money)
+	return domain.NewProduct(model.SKU, model.Name, money)
 }

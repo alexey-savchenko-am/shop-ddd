@@ -1,9 +1,9 @@
-package product
+package application
 
 import (
 	"fmt"
 
-	"github.com/alexey-savchenko-am/shop-ddd/internal/application/common"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/common/persistence"
 )
 
 type GetByIdQuery struct {
@@ -11,10 +11,10 @@ type GetByIdQuery struct {
 }
 
 type GetByIdQueryHandler struct {
-	queryDb common.QueryDB
+	queryDb persistence.QueryDB
 }
 
-func NewGetByIdQueryHandler(queryDb common.QueryDB) *GetByIdQueryHandler {
+func NewGetByIdQueryHandler(queryDb persistence.QueryDB) *GetByIdQueryHandler {
 	return &GetByIdQueryHandler{queryDb: queryDb}
 }
 

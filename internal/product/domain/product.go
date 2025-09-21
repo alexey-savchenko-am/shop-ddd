@@ -1,38 +1,38 @@
-package product
+package domain
 
 import (
 	"fmt"
 
-	"github.com/alexey-savchenko-am/shop-ddd/internal/domain/common"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/common"
 	"github.com/google/uuid"
 )
 
-type ID uuid.UUID
+type ProductID uuid.UUID
 
-func NewID() ID {
-	return ID(uuid.New())
+func NewProductID() ProductID {
+	return ProductID(uuid.New())
 }
 
-func ParseID(s string) (ID, error) {
+func ParseID(s string) (ProductID, error) {
 	uid, err := uuid.Parse(s)
 	if err != nil {
-		return ID{}, err
+		return ProductID{}, err
 	}
-	return ID(uid), nil
+	return ProductID(uid), nil
 }
 
-func (id ID) String() string {
+func (id ProductID) String() string {
 	return uuid.UUID(id).String()
 }
 
 type Product struct {
-	id    ID
+	id    ProductID
 	sku   string
 	name  string
 	price common.Money
 }
 
-func New(sku, name string, price common.Money) (*Product, error) {
+func NewProduct(sku, name string, price common.Money) (*Product, error) {
 	if sku == "" {
 		return nil, fmt.Errorf("sku is required")
 	}
@@ -44,14 +44,14 @@ func New(sku, name string, price common.Money) (*Product, error) {
 	}
 
 	return &Product{
-		id:    NewID(),
+		id:    NewProductID(),
 		sku:   sku,
 		name:  name,
 		price: price,
 	}, nil
 }
 
-func (p *Product) ID() ID              { return p.id }
+func (p *Product) ID() ProductID       { return p.id }
 func (p *Product) SKU() string         { return p.sku }
 func (p *Product) Name() string        { return p.name }
 func (p *Product) Price() common.Money { return p.price }

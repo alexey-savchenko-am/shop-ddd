@@ -1,19 +1,19 @@
-package product
+package http
 
 import (
 	"encoding/json"
 	"net/http"
 	"strconv"
 
-	appProduct "github.com/alexey-savchenko-am/shop-ddd/internal/application/product"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/product/application"
 	"github.com/go-chi/chi/v5"
 )
 
 type Handler struct {
-	productUseCases *appProduct.UseCases
+	productUseCases *application.UseCases
 }
 
-func NewHandler(useCases *appProduct.UseCases) *Handler {
+func NewHandler(useCases *application.UseCases) *Handler {
 	return &Handler{productUseCases: useCases}
 }
 
@@ -47,7 +47,7 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := appProduct.CreateProductCommand{
+	cmd := application.CreateProductCommand{
 		SKU:   req.SKU,
 		Name:  req.Name,
 		Price: req.Price,
@@ -90,7 +90,7 @@ func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	getByIdQuery := appProduct.GetByIdQuery{ID: id}
+	getByIdQuery := application.GetByIdQuery{ID: id}
 	p, err := h.productUseCases.GetProductById.Handle(getByIdQuery)
 	if err != nil {
 		http.Error(w, "product not found", http.StatusNotFound)
@@ -144,7 +144,7 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 		offset = 0
 	}
 
-	q := appProduct.GetAllQuery{
+	q := application.GetAllQuery{
 		SKU:    sku,
 		Name:   name,
 		Limit:  limit,
@@ -186,7 +186,7 @@ func (h *Handler) ChangePrice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	changePriceCmd := appProduct.ChangePriceCommand{
+	changePriceCmd := application.ChangePriceCommand{
 		ID:    id,
 		Price: req.NewPrice,
 	}

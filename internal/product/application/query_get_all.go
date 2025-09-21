@@ -1,9 +1,9 @@
-package product
+package application
 
 import (
 	"fmt"
 
-	"github.com/alexey-savchenko-am/shop-ddd/internal/application/common"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/common/persistence"
 )
 
 type GetAllQuery struct {
@@ -14,10 +14,10 @@ type GetAllQuery struct {
 }
 
 type GetAllQueryHandler struct {
-	queryDb common.QueryDB
+	queryDb persistence.QueryDB
 }
 
-func NewGetAllQueryHandler(queryDb common.QueryDB) *GetAllQueryHandler {
+func NewGetAllQueryHandler(queryDb persistence.QueryDB) *GetAllQueryHandler {
 	return &GetAllQueryHandler{queryDb: queryDb}
 }
 

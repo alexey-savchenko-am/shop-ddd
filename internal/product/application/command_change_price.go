@@ -1,10 +1,10 @@
-package product
+package application
 
 import (
 	"fmt"
 
-	"github.com/alexey-savchenko-am/shop-ddd/internal/domain/common"
-	"github.com/alexey-savchenko-am/shop-ddd/internal/domain/product"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/product/domain"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/common"
 )
 
 type ChangePriceCommand struct {
@@ -13,16 +13,16 @@ type ChangePriceCommand struct {
 }
 
 type ChangePriceCommandHandler struct {
-	repo product.Repository
+	repo domain.ProductRepository
 }
 
-func NewChangePriceCommandHandler(repo product.Repository) *ChangePriceCommandHandler {
+func NewChangePriceCommandHandler(repo domain.ProductRepository) *ChangePriceCommandHandler {
 	return &ChangePriceCommandHandler{repo: repo}
 }
 
-func (h *ChangePriceCommandHandler) Handle(cmd ChangePriceCommand) (*product.Product, error) {
+func (h *ChangePriceCommandHandler) Handle(cmd ChangePriceCommand) (*domain.Product, error) {
 
-	id, err := product.ParseID(cmd.ID)
+	id, err := domain.ParseID(cmd.ID)
 	if err != nil {
 		return nil, fmt.Errorf("invalid product id: %w", err)
 	}

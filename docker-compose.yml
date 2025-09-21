@@ -1,41 +1,44 @@
 version: "3.8"
 
 services:
-  shop-ddd:
-    build: .
-    container_name: shop-ddd
+  product:
+    build:
+      context: .
+      dockerfile: cmd/product/Dockerfile
+    container_name: product
     ports:
       - "${APP_PORT}:3000"
     environment:
-        DB_HOST: ${DB_HOST}
-        DB_PORT: ${DB_PORT}
-        DB_USER: ${DB_USER}
-        DB_PASSWORD: ${DB_PASSWORD}
-        DB_NAME: ${DB_NAME}
+      DB_HOST: product-db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: product
     depends_on:
-      - db
-  migrate:
+      - product-db
+  product-migrate:
     image: migrate/migrate
+    container_name: product-migrate
     restart: on-failure
     depends_on:
-      - db
+      - product-db
     volumes:
-      - ./migrations:/migrations
+      - ./migrations/product:/migrations
     command: [
         "-path", "/migrations",
-        "-database", "postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?sslmode=disable",
+        "-database", "postgres://${DB_USER}:${DB_PASSWORD}@product-db:5432/product?sslmode=disable",
         "up"
     ]
-  db:
+  product-db:
     image: postgres:15
-    container_name: shop-db
+    container_name: product-db
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB: product
     ports:
-      - "${DB_PORT}:5432"
+      - "5432:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
 

@@ -22,7 +22,6 @@ func (q *SqlxQueryDB) formatQuery(query string, args ...any) (string, []any, err
 	named = q.db.Rebind(named)
 	return named, params, nil
 }
-
 func (q *SqlxQueryDB) Select(dest interface{}, query string, args ...any) error {
 	named, params, err := q.formatQuery(query, args...)
 	if err != nil {

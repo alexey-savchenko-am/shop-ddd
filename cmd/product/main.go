@@ -10,30 +10,30 @@ import (
 	_ "github.com/alexey-savchenko-am/shop-ddd/docs" // docs swag init
 	httpSwagger "github.com/swaggo/http-swagger"
 
-	appProduct "github.com/alexey-savchenko-am/shop-ddd/internal/application/product"
-	"github.com/alexey-savchenko-am/shop-ddd/internal/infrastructure/persistence"
-	"github.com/alexey-savchenko-am/shop-ddd/internal/infrastructure/postgres"
-	httpProduct "github.com/alexey-savchenko-am/shop-ddd/internal/interfaces/http/product"
+	pers  "github.com/alexey-savchenko-am/shop-ddd/internal/common/persistence"
+	prodApp "github.com/alexey-savchenko-am/shop-ddd/internal/product/application"
+	prodPersistence "github.com/alexey-savchenko-am/shop-ddd/internal/product/infrastructure/persistence"
+	httpHandlers "github.com/alexey-savchenko-am/shop-ddd/internal/product/interfaces/http"
 )
 
 func main() {
 
-	db, err := postgres.NewGormDB()
+	db, err := pers.NewGormDB()
 
 	if err != nil {
 		log.Fatal("can not connect db:", err)
 	}
 
-	sqlxDB, err := postgres.NewSqlxDB()
+	sqlxDB, err := pers.NewSqlxDB()
 
 	if err != nil {
 		log.Fatal("can not connect db:", err)
 	}
 
-	queryDb := persistence.NewSqlxQueryDB(sqlxDB)
-	repo := postgres.NewProductRepository(db)
-	useCases := appProduct.NewUseCases(queryDb, repo)
-	handler := httpProduct.NewHandler(useCases)
+	queryDb := pers.NewSqlxQueryDB(sqlxDB)
+	repo := prodPersistence.NewProductRepository(db)
+	useCases := prodApp.NewUseCases(queryDb, repo)
+	handler := httpHandlers.NewHandler(useCases)
 
 	// chi router
 

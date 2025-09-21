@@ -1,9 +1,9 @@
-package product
+package domain
 
 import (
 	"testing"
 
-	"github.com/alexey-savchenko-am/shop-ddd/internal/domain/common"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/common"
 )
 
 func TestNewProduct(t *testing.T) {
@@ -14,7 +14,7 @@ func TestNewProduct(t *testing.T) {
 		t.Fatalf("expected no error, got %v", err)
 	}
 
-	_, err = New("SKU-1", "Product 1", price)
+	_, err = NewProduct("SKU-1", "Product 1", price)
 
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
@@ -25,7 +25,7 @@ func TestInvalidProduct(t *testing.T) {
 
 	price, _ := common.NewUsd(0)
 
-	_, err := New("", "", price)
+	_, err := NewProduct("", "", price)
 
 	if err == nil {
 		t.Fatal("expected error, got nil")
@@ -36,7 +36,7 @@ func TestChangePrice(t *testing.T) {
 
 	price, _ := common.NewUsd(1000)
 
-	p, _ := New("SKU-1", "Product 1", price)
+	p, _ := NewProduct("SKU-1", "Product 1", price)
 
 	newPrice, _ := common.NewUsd(2000)
 

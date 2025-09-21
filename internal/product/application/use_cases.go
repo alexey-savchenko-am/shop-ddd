@@ -1,8 +1,8 @@
-package product
+package application
 
 import (
-	"github.com/alexey-savchenko-am/shop-ddd/internal/application/common"
-	"github.com/alexey-savchenko-am/shop-ddd/internal/domain/product"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/common/persistence"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/product/domain"
 )
 
 type UseCases struct {
@@ -12,7 +12,7 @@ type UseCases struct {
 	GetAllProducts *GetAllQueryHandler
 }
 
-func NewUseCases(queryDb common.QueryDB, repo product.Repository) *UseCases {
+func NewUseCases(queryDb persistence.QueryDB, repo domain.ProductRepository) *UseCases {
 	return &UseCases{
 		CreateProduct:  NewCreateProductCommandHandler(repo),
 		ChangePrice:    NewChangePriceCommandHandler(repo),
