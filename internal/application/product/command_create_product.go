@@ -6,7 +6,6 @@ import (
 )
 
 type CreateProductCommand struct {
-	ID    string
 	SKU   string
 	Name  string
 	Price int64
@@ -28,7 +27,7 @@ func (h *CreateProductCommandHandler) Handle(cmd CreateProductCommand) (*product
 		return nil, err
 	}
 
-	newProduct, err := product.New(product.ID(cmd.ID), cmd.SKU, cmd.Name, price)
+	newProduct, err := product.New(cmd.SKU, cmd.Name, price)
 
 	if err != nil {
 		return nil, err

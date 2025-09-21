@@ -48,7 +48,6 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cmd := appProduct.CreateProductCommand{
-		ID:    req.ID,
 		SKU:   req.SKU,
 		Name:  req.Name,
 		Price: req.Price,
@@ -61,7 +60,7 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := ProductDto{
-		ID:       string(created.ID()),
+		ID:       created.ID().String(),
 		SKU:      created.SKU(),
 		Name:     created.Name(),
 		Price:    created.Price().Amount,
@@ -83,9 +82,9 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 // @Failure      404  {string}  string "Not found"
 // @Router       /products/{id} [get]
 func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) {
-	
+
 	id := chi.URLParam(r, "id")
-	
+
 	if id == "" {
 		http.Error(w, "missing id", http.StatusBadRequest)
 		return
@@ -99,11 +98,11 @@ func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := ProductDto{
-		ID:       string(p.ID()),
-		SKU:      p.SKU(),
-		Name:     p.Name(),
-		Price:    p.Price().Amount,
-		Currency: p.Price().Currency,
+		ID:       p.ID,
+		SKU:      p.SKU,
+		Name:     p.Name,
+		Price:    p.Price,
+		Currency: p.Currency,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

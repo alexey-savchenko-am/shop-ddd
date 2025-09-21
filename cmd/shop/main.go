@@ -31,11 +31,6 @@ func main() {
 	}
 
 	queryDb := persistence.NewSqlxQueryDB(sqlxDB)
-
-	if err := db.AutoMigrate(&postgres.ProductModel{}); err != nil {
-		log.Fatal("migration failed", err)
-	}
-
 	repo := postgres.NewProductRepository(db)
 	useCases := appProduct.NewUseCases(queryDb, repo)
 	handler := httpProduct.NewHandler(useCases)

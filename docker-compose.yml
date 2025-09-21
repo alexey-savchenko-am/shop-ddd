@@ -5,27 +5,39 @@ services:
     build: .
     container_name: shop-ddd
     ports:
-      - "3000:3000"
+      - "${APP_PORT}:3000"
     environment:
-        DB_HOST: postgres
-        DB_PORT: 5432
-        DB_USER: shop
-        DB_PASSWORD: shop
-        DB_NAME: shop
+        DB_HOST: ${DB_HOST}
+        DB_PORT: ${DB_PORT}
+        DB_USER: ${DB_USER}
+        DB_PASSWORD: ${DB_PASSWORD}
+        DB_NAME: ${DB_NAME}
     depends_on:
-      - postgres
-  postgres:
+      - db
+  migrate:
+    image: migrate/migrate
+    restart: on-failure
+    depends_on:
+      - db
+    volumes:
+      - ./migrations:/migrations
+    command: [
+        "-path", "/migrations",
+        "-database", "postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?sslmode=disable",
+        "up"
+    ]
+  db:
     image: postgres:15
     container_name: shop-db
     restart: always
     environment:
-      POSTGRES_USER: shop
-      POSTGRES_PASSWORD: shop
-      POSTGRES_DB: shop
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./pgdata:/var/lib/postgresql/data
 
 volumes:
   pgdata:

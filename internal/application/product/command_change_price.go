@@ -1,6 +1,8 @@
 package product
 
 import (
+	"fmt"
+
 	"github.com/alexey-savchenko-am/shop-ddd/internal/domain/common"
 	"github.com/alexey-savchenko-am/shop-ddd/internal/domain/product"
 )
@@ -20,7 +22,12 @@ func NewChangePriceCommandHandler(repo product.Repository) *ChangePriceCommandHa
 
 func (h *ChangePriceCommandHandler) Handle(cmd ChangePriceCommand) (*product.Product, error) {
 
-	p, err := h.repo.ByID(product.ID(cmd.ID))
+	id, err := product.ParseID(cmd.ID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid product id: %w", err)
+	}
+	
+	p, err := h.repo.ByID(id)
 
 	if err != nil {
 		return nil, err

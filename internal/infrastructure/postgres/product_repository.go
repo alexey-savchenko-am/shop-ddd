@@ -16,7 +16,7 @@ func NewProductRepository(db *gorm.DB) *ProductRepository {
 
 func (r *ProductRepository) Save(p *product.Product) error {
 	model := ProductModel{
-		ID:       string(p.ID()),
+		ID:       p.ID().String(),
 		SKU:      p.SKU(),
 		Name:     p.Name(),
 		Price:    p.Price().Amount,
@@ -34,5 +34,5 @@ func (r *ProductRepository) ByID(id product.ID) (*product.Product, error) {
 	}
 
 	money := common.Money{Amount: model.Price, Currency: model.Currency}
-	return product.New(product.ID(model.ID), model.SKU, model.Name, money)
+	return product.New(model.SKU, model.Name, money)
 }
