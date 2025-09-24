@@ -19,23 +19,19 @@ func NewCreateProductCommandHandler(repo domain.ProductRepository) *CreateProduc
 	return &CreateProductCommandHandler{repo: repo}
 }
 
-func (h *CreateProductCommandHandler) Handle(cmd CreateProductCommand) (*domain.Product, error) {
+func (h *CreateProductCommandHandler) Handle(cmd CreateProductCommand) common.Result[*domain.Product] {
 
-	price, err := common.NewUsd(cmd.Price)
+	priceResult := common.NewUsd(cmd.Price)
 
-	if err != nil {
-		return nil, err
+	if !priceResult.IsSuccess {
+		return common.Failure[*domain.Product](*priceResult.Error)
 	}
 
-	newProduct, err := domain.NewProduct(cmd.SKU, cmd.Name, price)
+	productResult := domain.NewProduct(cmd.SKU, cmd.Name, *priceResult.Value)
 
-	if err != nil {
-		return nil, err
+	if err := h.repo.Save(productResult.Value); err != nil {
+		return common.Failure[*domain.Product](common.FromError("product_db_error", err))
 	}
 
-	if err := h.repo.Save(newProduct); err != nil {
-		return nil, err
-	}
-
-	return newProduct, nil
+	return productResult
 }

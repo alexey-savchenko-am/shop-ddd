@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/alexey-savchenko-am/shop-ddd/internal/common"
 	"github.com/alexey-savchenko-am/shop-ddd/internal/product/application"
 	"github.com/go-chi/chi/v5"
 )
@@ -15,6 +16,12 @@ type Handler struct {
 
 func NewHandler(useCases *application.UseCases) *Handler {
 	return &Handler{productUseCases: useCases}
+}
+
+func writeJSON[T any](w http.ResponseWriter, status int, resp common.Result[T]) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 type ProductDto struct {
@@ -53,23 +60,14 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		Price: req.Price,
 	}
 
-	created, err := h.productUseCases.CreateProduct.Handle(cmd)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	result := h.productUseCases.CreateProduct.Handle(cmd)
+
+	if !result.IsSuccess {
+		writeJSON(w, http.StatusInternalServerError, result)
 		return
 	}
 
-	res := ProductDto{
-		ID:       created.ID().String(),
-		SKU:      created.SKU(),
-		Name:     created.Name(),
-		Price:    created.Price().Amount,
-		Currency: created.Price().Currency,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(res)
+	writeJSON(w, http.StatusCreated, result)
 }
 
 // GetById godoc
@@ -191,8 +189,8 @@ func (h *Handler) ChangePrice(w http.ResponseWriter, r *http.Request) {
 		Price: req.NewPrice,
 	}
 
-	if _, err := h.productUseCases.ChangePrice.Handle(changePriceCmd); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if res := h.productUseCases.ChangePrice.Handle(changePriceCmd); !res.IsSuccess {
+		writeJSON(w, http.StatusBadRequest, res)
 		return
 	}
 

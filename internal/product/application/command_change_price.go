@@ -1,10 +1,8 @@
 package application
 
 import (
-	"fmt"
-
-	"github.com/alexey-savchenko-am/shop-ddd/internal/product/domain"
 	"github.com/alexey-savchenko-am/shop-ddd/internal/common"
+	"github.com/alexey-savchenko-am/shop-ddd/internal/product/domain"
 )
 
 type ChangePriceCommand struct {
@@ -20,28 +18,37 @@ func NewChangePriceCommandHandler(repo domain.ProductRepository) *ChangePriceCom
 	return &ChangePriceCommandHandler{repo: repo}
 }
 
-func (h *ChangePriceCommandHandler) Handle(cmd ChangePriceCommand) (*domain.Product, error) {
+func (h *ChangePriceCommandHandler) Handle(cmd ChangePriceCommand) common.Result[*domain.Product] {
 
 	id, err := domain.ParseID(cmd.ID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid product id: %w", err)
-	}
-	
-	p, err := h.repo.ByID(id)
 
 	if err != nil {
-		return nil, err
+		return common.Failure[*domain.Product](domain.ErrProductInvalidID(cmd.ID))
 	}
 
-	newPrice, err := common.NewUsd(cmd.Price)
+	findByIdResult := h.repo.ByID(id)
 
-	if err != nil {
-		return nil, err
+	if !findByIdResult.IsSuccess {
+		return common.Failure[*domain.Product](domain.ErrProductNotFound)
 	}
 
-	if err := p.ChangePrice(newPrice); err != nil {
-		return nil, err
+	product := findByIdResult.Value
+
+	priceResult := common.NewUsd(cmd.Price)
+
+	if !priceResult.IsSuccess {
+		return common.Failure[*domain.Product](*priceResult.Error)
 	}
 
-	return p, h.repo.Save(p)
+	result := product.ChangePrice(*priceResult.Value)
+
+	if !result.IsSuccess {
+		return common.Failure[*domain.Product](*result.Error)
+	}
+
+	if err := h.repo.Save(product); err != nil {
+		return common.Failure[*domain.Product](common.FromError("product_db_error", err))
+	}
+
+	return result
 }

@@ -27,13 +27,16 @@ func (r *ProductRepository) Save(p *domain.Product) error {
 	return r.db.Save(&model).Error
 }
 
-func (r *ProductRepository) ByID(id domain.ProductID) (*domain.Product, error) {
+func (r *ProductRepository) ByID(id domain.ProductID) common.Result[*domain.Product] {
 	var model ProductModel
 
 	if err := r.db.First(&model, "id = ?", id).Error; err != nil {
-		return nil, err
+		return common.Failure[*domain.Product](domain.ErrProductNotFound)
 	}
 
 	money := common.Money{Amount: model.Price, Currency: model.Currency}
-	return domain.NewProduct(model.SKU, model.Name, money)
+
+	productId, _ := domain.ParseID(model.ID)
+
+	return domain.ReconstituteProduct(productId, model.SKU, model.Name, money)
 }
