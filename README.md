@@ -21,6 +21,5 @@ It demonstrates the usage of CQRS (Command Query Responsibility Segregation), la
 ```bash
 go mod tidy
 go run ./cmd/shop
-
 docker-compose up --build
 
