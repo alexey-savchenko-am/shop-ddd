@@ -1,7 +1,7 @@
 # Shop DDD Example
 
 This project is an example implementation of Domain-Driven Design (DDD) principles in Go.  
-It demonstrates the usage of CQRS (Command Query Responsibility Segregation), layered architecture, and integration with PostgreSQL.
+It demonstrates the usage of CQRS (Command Query Responsibility Segregation), layered architecture, and integration with PostgreSQL
 
 ## Features
 - Domain model for `Product`
